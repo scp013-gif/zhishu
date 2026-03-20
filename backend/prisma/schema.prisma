@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表：存储用户基础信息
+model User {
+  id            String    @id @default(uuid()) // 主键，自动生成UUID
+  username      String    @unique // 用户名唯一
+  password      String    // 加密后的密码（不存明文）
+  avatar        String?   // 头像URL（可选）
+  createdAt     DateTime  @default(now()) // 创建时间
+  updatedAt     DateTime  @updatedAt // 更新时间
+  // 关联：一个用户有多个小说
+  novels        Novel[]
+  // 关联：一个用户有多个聊天会话
+  chatHistories ChatHistory[]
+}
+
+// 小说表：存储上传的小说信息
+model Novel {
+  id            String    @id @default(uuid())
+  name          String    // 小说文件名
+  filePath      String    // 本地存储路径
+  fileSize      BigInt    // 文件大小（字节）
+  userId        String    // 所属用户ID
+  createdAt     DateTime  @default(now())
+  // 关联：外键关联用户，用户删除则小说也删除（Cascade）
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // 关联：一个小说有多个聊天会话
+  chatHistories ChatHistory[]
+}
+
+// 聊天会话表：按会话维度管理消息
+model ChatHistory {
+  id            String    @id @default(uuid())
+  title         String    // 会话标题（取第一个问题）
+  userId        String    // 所属用户ID
+  novelId       String    // 关联小说ID
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  // 关联：外键关联用户
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // 关联：外键关联小说
+  novel         Novel     @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  // 关联：一个会话有多个消息
+  messages      Message[]
+}
+
+// 消息表：存储单条问答消息
+model Message {
+  id            String    @id @default(uuid())
+  content       String    // 消息内容
+  role          String    // 角色：user（用户）/assistant（AI）
+  chatHistoryId String    // 所属会话ID
+  createdAt     DateTime  @default(now())
+  // 关联：外键关联会话，会话删除则消息也删除
+  chatHistory   ChatHistory @relation(fields: [chatHistoryId], references: [id], onDelete: Cascade)
+}
