@@ -1,0 +1,30 @@
+# =========================================
+# NestJS Backend Ignored Files
+# =========================================
+
+# 依赖包 (最重要，千万别提交)
+backend/node_modules/
+
+# 编译后的输出目录
+backend/dist/
+
+# 环境变量文件 (包含密码密钥，严禁提交)
+backend/.env
+backend/.env.local
+backend/.env.*.local
+
+# 日志文件
+backend/*.log
+
+# NestJS 特定缓存
+backend/tsconfig.tsbuildinfo
+
+# 测试覆盖率报告
+backend/coverage/
+# Node.js / NestJS 后端忽略项
+backend/node_modules/
+backend/dist/
+backend/.env
+backend/*.log
+backend/coverage/
+backend/tsconfig.tsbuildinfo
