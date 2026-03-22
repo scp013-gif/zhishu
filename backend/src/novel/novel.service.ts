@@ -2,15 +2,18 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { randomUUID } from 'crypto';
 import { createWriteStream, existsSync, mkdirSync, unlinkSync } from 'fs';
 import { join } from 'path';
-import { NotFoundError } from 'rxjs';
+import { ZillizService } from 'src/zilliz/zilliz.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class NovelService {
     // 上传目录
     private readonly uploadDir = join(process.cwd(),'upload');
-
-    constructor(private prismaService:PrismaService){
+    
+    constructor(
+        private prismaService:PrismaService,
+        private zillizService:ZillizService
+    ){
         // 初始化上传目录，不存在则创建
         if(!existsSync(this.uploadDir)){
             mkdirSync(this.uploadDir,{recursive:true});
@@ -71,7 +74,7 @@ export class NovelService {
 
         // 删除数据库记录
         await this.prismaService.novel.delete({
-            where:{id:userId}
+            where:{id:novelId}
         });
 
         // 删除本地文件
@@ -80,6 +83,8 @@ export class NovelService {
             console.log(`删除文件：${novel.filePath}`);
         }
 
+        // 删除向量
+        await this.zillizService.deleteVectorsByNovelId(novelId);
         return { success:true, message:'删除成功' }
     }
 

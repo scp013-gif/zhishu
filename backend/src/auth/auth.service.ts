@@ -95,7 +95,7 @@ export class AuthService {
                 expiresIn:'15m'
             }
         )
-        return {accesstoken:newAccessToken}
+        return {accessToken:newAccessToken}
     }catch(err){
         throw new UnauthorizedException('刷新token无效，请重新登录')
     }
