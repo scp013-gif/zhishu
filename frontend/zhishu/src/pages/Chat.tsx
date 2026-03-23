@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Plus, Trash2, Book, MessageCircle, Bot, User as UserIcon } from 'lucide-react';
+import { Send, Plus, Trash2, MessageCircle, Bot, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import request from '@/api/request';

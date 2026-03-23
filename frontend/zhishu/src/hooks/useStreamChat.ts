@@ -1,6 +1,4 @@
 import { useState, useCallback } from 'react';
-import request from '@/api/request';
-
 export function useStreamChat() {
   const [loading, setLoading] = useState(false);
 

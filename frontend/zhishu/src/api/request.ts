@@ -1,7 +1,7 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 const request = axios.create({
-  baseURL: 'http://localhost:3000/api', // 添加 /api 前缀
+  baseURL: 'http://localhost:3000/api', 
   timeout: 10000,
 });
 
