@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { createWriteStream, existsSync, mkdirSync, unlinkSync } from 'fs';
+import { existsSync, mkdirSync, unlinkSync } from 'fs';
+import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { ZillizService } from 'src/zilliz/zilliz.service';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -22,9 +23,12 @@ export class NovelService {
     }
 
     async uploadNovel(file:Express.Multer.File,userId:string){
-        // 检验文件格式
-        if(!file.originalname.endsWith('.txt')){
-            throw new BadRequestException('仅支持TXT格式文件');
+        // 检验文件格式 (增加对 PDF 的支持)
+        const allowedExtensions = ['.txt', '.pdf'];
+        const isAllowed = allowedExtensions.some(ext => file.originalname.toLowerCase().endsWith(ext));
+        
+        if(!isAllowed){
+            throw new BadRequestException('仅支持 TXT 或 PDF 格式文件');
         }
 
         // 校验文件大小
@@ -37,10 +41,12 @@ export class NovelService {
         const fileName = `${randomUUID()}-${file.originalname}`;
         const filePath = join(this.uploadDir,fileName);
 
-        // 保存文件到本地
-        const writeStream = createWriteStream(filePath);
-        writeStream.write(file.buffer);
-        writeStream.end();
+        // 保存文件到本地 
+        try {
+            await writeFile(filePath, file.buffer);
+        } catch (err) {
+            throw new BadRequestException(`文件保存失败: ${err.message}`);
+        }
 
         // 保存小说信息到数据库
         const novel = await this.prismaService.novel.create({
@@ -51,7 +57,12 @@ export class NovelService {
                 userId
             }
         });
-        return novel;
+        
+        // 处理 BigInt 序列化问题，返回前转换为字符串或普通数字
+        return {
+            ...novel,
+            fileSize: novel.fileSize.toString()
+        };
     }
 
     // 查询用户的小说列表

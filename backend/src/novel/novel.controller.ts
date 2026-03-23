@@ -10,7 +10,11 @@ export class NovelController {
 
   // 上传小说接口
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file')) // 拦截名为file的文件字段
+  @UseInterceptors(FileInterceptor('file', {
+    limits: {
+      fileSize: 20 * 1024 * 1024, // 限制 20MB
+    }
+  })) // 拦截名为file的文件字段
   async uploadNovel(
     @UploadedFile() file:Express.Multer.File, // 获取上传的文件
     @Req() req:any // 请求对象，req.user由JwtStrategy验证后挂载

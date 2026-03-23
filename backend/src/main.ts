@@ -13,6 +13,10 @@ async function bootstrap() {
     whitelist:true,
     transform:true
   }))
-  await app.listen(process.env.PORT ?? 3000);
+  // 增加整体请求体限制，虽然 FileInterceptor 独立处理，但设置全局大一点更保险
+  app.use(require('body-parser').json({limit: '50mb'}));
+  app.use(require('body-parser').urlencoded({limit: '50mb', extended: true}));
+  
+  await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();

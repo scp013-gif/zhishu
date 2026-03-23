@@ -11,6 +11,7 @@ import { ZillizService } from '../zilliz/zilliz.service';
 
 @Injectable()
 export class ChatService {
+  // 内置的默认日志记录器，它用于在应用程序的生命周期、异常处理以及业务逻辑中输出日志信息。
   private readonly logger = new Logger(ChatService.name);
   private deepSeek: ChatDeepSeek;
   private embeddings: OpenAIEmbeddings; // 向量化模型
@@ -28,7 +29,7 @@ export class ChatService {
       temperature: 0.5, 
     });
 
-    // 初始化向量化模型（使用 Aliyun DashScope / OpenAI 兼容接口）
+    // 初始化向量化模型
     this.embeddings = new OpenAIEmbeddings({
         apiKey: this.config.get('OPENAI_API_KEY'),
         configuration: {
@@ -38,7 +39,7 @@ export class ChatService {
     });
   }
 
-  // 文本向量化（适配 Zilliz）
+  // 文本向量化
   private async embedText(text: string): Promise<number[]>;
   private async embedText(text: string[]): Promise<number[][]>;
   private async embedText(text: string | string[]): Promise<number[] | number[][]> {
@@ -97,7 +98,7 @@ export class ChatService {
     });
   }
 
-  // 删除会话（含消息）
+  // 删除会话
   async deleteChatHistory(historyId: string, userId: string) {
     const history = await this.prisma.chatHistory.findFirst({ where: { id: historyId, userId } });
     if (!history) throw new NotFoundException('会话不存在');
@@ -121,7 +122,7 @@ export class ChatService {
     const history = await this.prisma.chatHistory.findFirst({ where: { id: historyId, userId, novelId } });
     if (!history) throw new NotFoundException('会话不存在/小说不匹配');
 
-    // 加载小说到 Zilliz（首次调用时加载）
+    // 加载小说到 Zilliz
     const novel = await this.novelService.getNovelById(novelId, userId);
     await this.loadNovelToZilliz(novel.filePath, novelId);
 
