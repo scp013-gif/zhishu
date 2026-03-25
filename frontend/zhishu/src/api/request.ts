@@ -1,7 +1,7 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 const request = axios.create({
-  baseURL: 'http://localhost:3000/api', 
+  baseURL: 'http://localhost:3001/api', 
   timeout: 10000,
 });
 
@@ -38,7 +38,7 @@ request.interceptors.response.use(
         
         if (refreshToken) {
           try {
-            const res: any = await axios.post('http://localhost:3000/api/auth/refresh', {
+            const res: any = await axios.post('http://localhost:3001/api/auth/refresh', {
               refresh: refreshToken,
             });
             

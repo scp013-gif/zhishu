@@ -12,7 +12,7 @@ export function useStreamChat() {
   ) => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3000/api/chat/stream', {
+      const response = await fetch('http://localhost:3001/api/chat/stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -22,6 +22,8 @@ export function useStreamChat() {
       });
 
       if (!response.ok) {
+         const errorText = await response.text(); 
+        console.error('后端真实的报错信息是:', errorText);
         throw new Error('Streaming failed');
       }
 
